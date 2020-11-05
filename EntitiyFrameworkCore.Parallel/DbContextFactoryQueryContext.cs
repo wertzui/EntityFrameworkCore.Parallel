@@ -35,15 +35,26 @@ namespace EntitiyFrameworkCore.Parallel
                 var queryaple = set.AsQueryable();
                 var provider = queryaple.Provider;
 
-                var setQuery = provider is IAsyncQueryProvider asyncProvider ? 
-                    new QueryRootExpression(asyncProvider, set.EntityType) :
-                    new QueryRootExpression(set.EntityType);
-                var call = (MethodCallExpression)query;
-                var replaced = call.Update(call.Object, new Expression[] { setQuery }.Concat(call.Arguments.Skip(1)));
+                var replaced = ReplaceProvider(query, set, provider);
                 var result = provider.Execute<TResult>(replaced);
                 var buffered = Buffer(result);
                 return buffered;
             }
+        }
+
+        private static Expression ReplaceProvider(Expression query, DbSet<TEntity> set, IQueryProvider provider)
+        {
+            var setQuery = provider is IAsyncQueryProvider asyncProvider ?
+                                new QueryRootExpression(asyncProvider, set.EntityType) :
+                                new QueryRootExpression(set.EntityType);
+            Expression replaced;
+            if (query is MethodCallExpression call)
+                replaced = call.Update(call.Object, new Expression[] { setQuery }.Concat(call.Arguments.Skip(1)));
+            else if (query is QueryRootExpression root)
+                replaced = setQuery;
+            else
+                throw new ArgumentException($"An Expression of type {query.Type} is not supported.", nameof(query));
+            return replaced;
         }
 
         private static TResult Buffer<TResult>(TResult result, CancellationToken cancellationToken = default)
@@ -66,17 +77,6 @@ namespace EntitiyFrameworkCore.Parallel
             return result;
         }
 
-        private static TResult BufferAsync<TResult>(TResult result, IAsyncDisposable dbSet, CancellationToken cancellationToken)
-        {
-            if (result is IEnumerable enumerable)
-            {
-                var buffered = EntitiyFrameworkCore.Parallel.AsyncEnumerableExtensions.Buffer((dynamic)result, dbSet);
-                return (TResult)buffered;
-            }
-
-            return result;
-        }
-
         public TResult ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken)
         {
             // We cannot use a using block here, because the result will be enumerated after this method has already returned.
@@ -92,9 +92,7 @@ namespace EntitiyFrameworkCore.Parallel
 
                 if (provider is IAsyncQueryProvider asyncProvider)
                 {
-                    var setQuery = new QueryRootExpression(asyncProvider, set.EntityType);
-                    var call = (MethodCallExpression)query;
-                    var replaced = call.Update(call.Object, new Expression[] { setQuery }.Concat(call.Arguments.Skip(1)));
+                    var replaced = ReplaceProvider(query, set, provider);
                     var result = asyncProvider.ExecuteAsync<TResult>(replaced);
                     var buffered = BufferAsync(result, context, cancellationToken);
                     return buffered;
@@ -107,6 +105,17 @@ namespace EntitiyFrameworkCore.Parallel
                 context.Dispose();
                 throw;
             }
+        }
+
+        private static TResult BufferAsync<TResult>(TResult result, IAsyncDisposable dbSet, CancellationToken cancellationToken)
+        {
+            if (result is IEnumerable enumerable)
+            {
+                var buffered = EntitiyFrameworkCore.Parallel.AsyncEnumerableExtensions.Buffer((dynamic)result, dbSet);
+                return (TResult)buffered;
+            }
+
+            return result;
         }
     }
 

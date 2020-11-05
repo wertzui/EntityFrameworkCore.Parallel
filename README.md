@@ -10,7 +10,7 @@ In your `Startup` class, add a `DbContextfactory`. If you want a pooled one, or 
 services.AddPooledDbContextFactory<OrderContext>(options => options.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=OrderTest"));
 ```
 
-In your business class, inject an `IDbContextFactory<TContext` and use it like this
+In your business class, inject an `IDbContextFactory<TContext>` and use it like this
 ```
 var ordersFromDb = await _factory.Set<OrderContext, Order>().Where(o => o.Id > 3).ToListAsync();
 ```
