@@ -12,5 +12,5 @@ services.AddPooledDbContextFactory<OrderContext>(options => options.UseSqlServer
 
 In your business class, inject an `IDbContextFactory<TContext>` and use it like this
 ```
-var ordersFromDb = await _factory.Set<OrderContext, Order>().Where(o => o.Id > 3).ToListAsync();
+var ordersFromDb = await _factory.Set<Order>().Where(o => o.Id > 3).ToListAsync();
 ```

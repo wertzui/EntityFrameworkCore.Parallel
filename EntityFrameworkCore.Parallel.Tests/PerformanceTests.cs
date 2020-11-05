@@ -111,8 +111,8 @@ namespace EntityFrameworkCore.Parallel.Tests
 
         private static async Task GetAllWithFactoryParallel()
         {
-            var ordersTask = _factory.Set<OrderContext, Order>().ToListAsync();
-            var detailsTask = _factory.Set<OrderContext, Detail>().ToListAsync();
+            var ordersTask = _factory.Set<Order>().ToListAsync();
+            var detailsTask = _factory.Set<Detail>().ToListAsync();
 
             await Task.WhenAll(ordersTask, detailsTask);
 

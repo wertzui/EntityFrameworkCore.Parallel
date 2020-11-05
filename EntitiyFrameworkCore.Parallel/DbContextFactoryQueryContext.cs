@@ -15,13 +15,13 @@ namespace EntitiyFrameworkCore.Parallel
     /// </summary>
     /// <typeparam name="TContext"></typeparam>
     /// <typeparam name="TEntity"></typeparam>
-    public class DbContextFactoryQueryContext<TContext, TEntity> : DbContextFactoryQueryContext, IQueryContext
-        where TContext : DbContext
+    public class DbContextFactoryQueryContext<TEntity> : DbContextFactoryQueryContext, IQueryContext
+        //where TContext : DbContext
         where TEntity : class
     {
-        private readonly IDbContextFactory<TContext> factory;
+        private readonly IDbContextFactory<DbContext> factory;
 
-        public DbContextFactoryQueryContext(IDbContextFactory<TContext> factory)
+        public DbContextFactoryQueryContext(IDbContextFactory<DbContext> factory)
         {
             this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
         }
