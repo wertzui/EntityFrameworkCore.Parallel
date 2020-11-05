@@ -1,5 +1,4 @@
-﻿using EntitiyFrameworkCore.Parallel;
-using EntityFrameworkCore.Parallel.DemoModel;
+﻿using EntityFrameworkCore.Parallel.DemoModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -44,19 +43,19 @@ namespace EntityFrameworkCore.Parallel.Tests
         }
 
         [TestMethod]
-        public async Task Parallel_should_be_faster_than_serial()
+        public void Parallel_should_be_faster_than_serial()
         {
             Assert.IsTrue(_timeSpanParallel < _timeSpanSerial);
         }
 
         [TestMethod]
-        public async Task Factory_should_be_faster_than_include()
+        public void Factory_should_be_faster_than_include()
         {
             Assert.IsTrue(_timeSpanFactory < _timeSpanInclude);
         }
 
         [TestMethod]
-        public async Task Factory_should_be_roughly_equal_to_parallel()
+        public void Factory_should_be_roughly_equal_to_parallel()
         {
             var delta = _timeSpanFactory.TotalMilliseconds * 0.1; // 10% difference is ok
             Assert.AreEqual(_timeSpanFactory.TotalMilliseconds, _timeSpanParallel.TotalMilliseconds, delta);

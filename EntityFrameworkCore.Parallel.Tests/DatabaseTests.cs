@@ -1,4 +1,3 @@
-using EntitiyFrameworkCore.Parallel;
 using EntityFrameworkCore.Parallel.DemoModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,7 +18,7 @@ namespace EntityFrameworkCore.Parallel.Tests
         }
 
         [TestMethod]
-        public async Task ToList_should_return_the_Orders_from_the_database()
+        public void ToList_should_return_the_Orders_from_the_database()
         {
             // Act
             var ordersFromDb = _factory.Set<OrderContext, Order>().ToList();
@@ -39,7 +38,7 @@ namespace EntityFrameworkCore.Parallel.Tests
         }
 
         [TestMethod]
-        public async Task ToList_with_Where_should_return_the_Orders_from_the_database()
+        public void ToList_with_Where_should_return_the_Orders_from_the_database()
         {
             // Act
             var ordersFromDb = _factory.Set<OrderContext, Order>().Where(o => o.Id > 3).ToList();
@@ -59,7 +58,7 @@ namespace EntityFrameworkCore.Parallel.Tests
         }
 
         [TestMethod]
-        public async Task First_should_return_the_first_Order_from_the_database()
+        public void First_should_return_the_first_Order_from_the_database()
         {
             // Act
             var orderFromDb = _factory.Set<OrderContext, Order>().First();

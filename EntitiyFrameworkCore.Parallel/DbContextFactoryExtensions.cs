@@ -1,9 +1,9 @@
-﻿using EntitiyFrameworkCore.Parallel.Internal;
-using Microsoft.EntityFrameworkCore;
+﻿using EntitiyFrameworkCore.Parallel;
+using EntitiyFrameworkCore.Parallel.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.Linq;
 
-namespace EntitiyFrameworkCore.Parallel
+namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
     /// Contains the <see cref="Set{TContext, TEntity}(IDbContextFactory{TContext})"/> extension method wich is the starting point for any query.
