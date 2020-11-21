@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntitiyFrameworkCore.Parall
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFrameworkCore.Parallel.Tests", "EntityFrameworkCore.Parallel.Tests\EntityFrameworkCore.Parallel.Tests.csproj", "{6565439E-6CF8-4EF3-97E2-C7B5E264E952}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFrameworkCore.Parallel.DemoModel", "EntityFrameworkCore.Parallel.DemoModel\EntityFrameworkCore.Parallel.DemoModel.csproj", "{8B8E9F92-8ECA-4848-B038-1D904B2D59AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFrameworkCore.Parallel.DemoModel", "EntityFrameworkCore.Parallel.DemoModel\EntityFrameworkCore.Parallel.DemoModel.csproj", "{8B8E9F92-8ECA-4848-B038-1D904B2D59AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

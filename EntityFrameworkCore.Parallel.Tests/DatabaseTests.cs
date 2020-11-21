@@ -38,6 +38,66 @@ namespace EntityFrameworkCore.Parallel.Tests
         }
 
         [TestMethod]
+        public void SelectMany_and_ToList_should_return_the_Details_from_the_database()
+        {
+            // Act
+            var detailsFromDb = _factory.Set<Order>().SelectMany(o => o.Details).ToList();
+
+            // Assert
+            Assert.AreEqual(100, detailsFromDb.Count);
+        }
+
+        [TestMethod]
+        public async Task SelectMany_and_ToListAsync_should_return_the_Details_from_the_database()
+        {
+            // Act
+            var detailsFromDb = await _factory.Set<Order>().SelectMany(o => o.Details).ToListAsync();
+
+            // Assert
+            Assert.AreEqual(100, detailsFromDb.Count);
+        }
+
+        [TestMethod]
+        public void SelectMany_and_Select_and_ToList_should_return_the_Details_from_the_database()
+        {
+            // Act
+            var detailsFromDb = _factory.Set<Order>().SelectMany(o => o.Details).Select(d => d.Order).ToList();
+
+            // Assert
+            Assert.AreEqual(100, detailsFromDb.Count);
+        }
+
+        [TestMethod]
+        public async Task SelectMany_and_Select_and_ToListAsync_should_return_the_Details_from_the_database()
+        {
+            // Act
+            var detailsFromDb = await _factory.Set<Order>().SelectMany(o => o.Details).Select(d => d.Order).ToListAsync();
+
+            // Assert
+            Assert.AreEqual(100, detailsFromDb.Count);
+        }
+
+        [TestMethod]
+        public async Task Select_and_ToListAsync_should_return_the_Orders_from_the_database()
+        {
+            // Act
+            var detailsFromDb = await _factory.Set<Detail>().Select(d => d.Order).ToListAsync();
+
+            // Assert
+            Assert.AreEqual(100, detailsFromDb.Count);
+        }
+
+        [TestMethod]
+        public void Select_and_ToList_should_return_the_Orders_from_the_database()
+        {
+            // Act
+            var detailsFromDb = _factory.Set<Detail>().Select(d => d.Order).ToList();
+
+            // Assert
+            Assert.AreEqual(100, detailsFromDb.Count);
+        }
+
+        [TestMethod]
         public void ToList_with_Where_should_return_the_Orders_from_the_database()
         {
             // Act
