@@ -22,6 +22,11 @@ namespace EntitiyFrameworkCore.Parallel
 
         private readonly MethodInfo _genericExecuteMethod;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QueryProvider"/> class.
+        /// </summary>
+        /// <param name="queryContext">The query context.</param>
+        /// <exception cref="System.ArgumentNullException">queryContext</exception>
         public QueryProvider(IQueryContext queryContext)
         {
             _queryContext = queryContext ?? throw new System.ArgumentNullException(nameof(queryContext));
@@ -31,6 +36,7 @@ namespace EntitiyFrameworkCore.Parallel
                  .Single(m => m.Name == nameof(IQueryContext.Execute) && m.IsGenericMethod);
         }
 
+        /// <inheritdoc/>
         public virtual IQueryable CreateQuery(Expression expression)
         {
             if (expression is null)
@@ -41,6 +47,7 @@ namespace EntitiyFrameworkCore.Parallel
                 .Invoke(this, new object[] { expression });
         }
 
+        /// <inheritdoc/>
         public virtual IQueryable<T> CreateQuery<T>(Expression expression)
         {
             if (expression is null)
@@ -49,6 +56,7 @@ namespace EntitiyFrameworkCore.Parallel
             return new EntityQueryable<T>(this, expression);
         }
 
+        /// <inheritdoc/>
         public virtual object Execute(Expression expression)
         {
             if (expression is null)
@@ -59,6 +67,7 @@ namespace EntitiyFrameworkCore.Parallel
                 .Invoke(_queryContext, new object[] { expression });
         }
 
+        /// <inheritdoc/>
         TResult IQueryProvider.Execute<TResult>(Expression expression)
         {
             if (expression is null)
@@ -67,6 +76,7 @@ namespace EntitiyFrameworkCore.Parallel
             return _queryContext.Execute<TResult>(expression);
         }
 
+        /// <inheritdoc/>
         public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default)
         {
             if (expression is null)

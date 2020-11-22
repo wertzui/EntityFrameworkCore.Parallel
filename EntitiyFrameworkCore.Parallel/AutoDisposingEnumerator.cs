@@ -10,8 +10,14 @@ namespace EntitiyFrameworkCore.Parallel
     public class AutoDisposingEnumerator<T> : IEnumerator<T>
     {
         private readonly IDisposable _disposable;
-        private IEnumerator<T> _enumerator;
+        private readonly IEnumerator<T> _enumerator;
 
+        /// <summary>Initializes a new instance of the <see cref="AutoDisposingEnumerator{T}" /> class.</summary>
+        /// <param name="source">The source.</param>
+        /// <param name="disposable">The disposable.</param>
+        /// <exception cref="ArgumentNullException">source
+        /// or
+        /// disposable</exception>
         public AutoDisposingEnumerator(IEnumerable<T> source, IDisposable disposable)
         {
             if (source is null)
@@ -21,18 +27,25 @@ namespace EntitiyFrameworkCore.Parallel
             _disposable = disposable ?? throw new ArgumentNullException(nameof(disposable));
         }
 
+        /// <inheritdoc/>
         public T Current => _enumerator.Current;
 
+        /// <inheritdoc/>
         object System.Collections.IEnumerator.Current => Current;
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             _enumerator.Dispose();
             _disposable.Dispose();
+
+            GC.SuppressFinalize(this);
         }
 
+        /// <inheritdoc/>
         public bool MoveNext() => _enumerator.MoveNext();
 
+        /// <inheritdoc/>
         public void Reset() => _enumerator.Reset();
     }
 }

@@ -13,12 +13,23 @@ namespace EntitiyFrameworkCore.Parallel
         private readonly IAsyncDisposable _asyncDisposable;
         private readonly IAsyncEnumerable<T> _source;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AutoDisposingAsyncEnumerable{T}"/> class.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="dbSet">The database set.</param>
+        /// <exception cref="ArgumentNullException">
+        /// source
+        /// or
+        /// dbSet
+        /// </exception>
         public AutoDisposingAsyncEnumerable(IAsyncEnumerable<T> source, IAsyncDisposable dbSet)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
             _asyncDisposable = dbSet ?? throw new ArgumentNullException(nameof(dbSet));
         }
 
+        /// <inheritdoc/>
         public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default) => new AutoDisposingAsyncEnumerator<T>(_source, _asyncDisposable);
     }
 }

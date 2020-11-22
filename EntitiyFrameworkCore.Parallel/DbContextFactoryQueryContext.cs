@@ -13,19 +13,23 @@ namespace EntitiyFrameworkCore.Parallel
     /// <summary>
     /// This class contains the logic which will actually create the <see cref="DbContext"/> and execute the query on it.
     /// </summary>
-    /// <typeparam name="TContext"></typeparam>
     /// <typeparam name="TEntity"></typeparam>
     public class DbContextFactoryQueryContext<TEntity> : DbContextFactoryQueryContext, IQueryContext
-        //where TContext : DbContext
         where TEntity : class
     {
         private readonly IDbContextFactory<DbContext> factory;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DbContextFactoryQueryContext{TEntity}"/> class.
+        /// </summary>
+        /// <param name="factory">The factory.</param>
+        /// <exception cref="ArgumentNullException">factory</exception>
         public DbContextFactoryQueryContext(IDbContextFactory<DbContext> factory)
         {
             this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
         }
 
+        /// <inheritdoc/>
         public TResult Execute<TResult>(Expression query)
         {
             if (query is null)
@@ -36,8 +40,8 @@ namespace EntitiyFrameworkCore.Parallel
             {
                 context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 var set = context.Set<TEntity>();
-                var queryaple = set.AsQueryable();
-                var provider = queryaple.Provider;
+                var queryable = set.AsQueryable();
+                var provider = queryable.Provider;
 
                 var replaced = ReplaceProvider(query, set, provider);
                 var result = provider.Execute<TResult>(replaced);
@@ -66,6 +70,7 @@ namespace EntitiyFrameworkCore.Parallel
             return result;
         }
 
+        /// <inheritdoc/>
         public TResult ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken = default)
         {
             if (query is null)
@@ -123,30 +128,44 @@ namespace EntitiyFrameworkCore.Parallel
                 .Unwrap();
     }
 
+    /// <summary>
+    /// Base class for <see cref="DbContextFactoryQueryContext{TEntity}"/> which contains some non generic reflection stuff.
+    /// </summary>
+    /// <seealso cref="EntitiyFrameworkCore.Parallel.DbContextFactoryQueryContext" />
+    /// <seealso cref="EntitiyFrameworkCore.Parallel.IQueryContext" />
     public abstract class DbContextFactoryQueryContext
     {
+        /// <summary>
+        /// <see cref="MethodInfo"/> of <see cref="Enumerable.ToList{TSource}(System.Collections.Generic.IEnumerable{TSource})"/>.
+        /// </summary>
         protected static readonly MethodInfo _toListMethodInfo = typeof(Enumerable)
-                        .GetMethod(nameof(Enumerable.ToList));
+            .GetMethod(nameof(Enumerable.ToList));
 
+        /// <summary>
+        /// <see cref="MethodInfo"/> of <see cref="AsyncEnumerable.ToListAsync{TSource}(System.Collections.Generic.IAsyncEnumerable{TSource}, CancellationToken)"/>.
+        /// </summary>
         protected static readonly MethodInfo _toListAsyncMethodInfo = typeof(AsyncEnumerable)
-                        .GetMethod(nameof(AsyncEnumerable.ToListAsync));
+            .GetMethod(nameof(AsyncEnumerable.ToListAsync));
 
+        /// <summary>
+        /// <see cref="MethodInfo"/> of <see cref="AsyncEnumerable.ToAsyncEnumerable{TSource}(Task{TSource})"/>.
+        /// </summary>
         protected static readonly MethodInfo _toAsyncEnumerableMethodInfo = typeof(AsyncEnumerable)
-                        .GetMethods()
-                        .Single(m =>
-                        {
-                            if (m.Name != nameof(AsyncEnumerable.ToAsyncEnumerable))
-                                return false;
+            .GetMethods()
+            .Single(m =>
+            {
+                if (m.Name != nameof(AsyncEnumerable.ToAsyncEnumerable))
+                    return false;
 
-                            var parameter = m.GetParameters().FirstOrDefault();
-                            if (parameter == null)
-                                return false;
+                var parameter = m.GetParameters().FirstOrDefault();
+                if (parameter == null)
+                    return false;
 
-                            var parameterType = parameter.ParameterType;
-                            if (!typeof(Task).IsAssignableFrom(parameterType))
-                                return false;
+                var parameterType = parameter.ParameterType;
+                if (!typeof(Task).IsAssignableFrom(parameterType))
+                    return false;
 
-                            return true;
-                        });
+                return true;
+            });
     }
 }

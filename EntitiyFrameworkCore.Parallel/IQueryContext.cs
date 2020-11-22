@@ -8,7 +8,21 @@ namespace EntitiyFrameworkCore.Parallel
     /// </summary>
     public interface IQueryContext
     {
+        /// <summary>
+        /// Executes the specified query.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="query">The query.</param>
+        /// <returns></returns>
         TResult Execute<TResult>(Expression query);
+
+        /// <summary>
+        /// Executes the asynchronous.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="query">The query.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         TResult ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken);
     }
 }
