@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace EntitiyFrameworkCore.Parallel.Internal
+namespace EntityFrameworkCore.Parallel.Internal
 {
     /// <summary>
     /// Contains extension methods to find the generic type parameter of a collection type.

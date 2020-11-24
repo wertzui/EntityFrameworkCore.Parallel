@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EntitiyFrameworkCore.Parallel
+namespace EntityFrameworkCore.Parallel
 {
     /// <summary>
     /// Contains extension methods for <see cref="IAsyncEnumerable{T}"/>.

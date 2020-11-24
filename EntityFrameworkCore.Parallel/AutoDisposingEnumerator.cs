@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EntitiyFrameworkCore.Parallel
+namespace EntityFrameworkCore.Parallel
 {
     /// <summary>
     /// This enumerator will automatically dispose the given disposable object once fully enumerated.

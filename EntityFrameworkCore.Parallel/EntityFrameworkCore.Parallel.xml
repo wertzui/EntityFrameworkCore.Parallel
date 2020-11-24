@@ -1,41 +1,41 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>EntitiyFrameworkCore.Parallel</name>
+        <name>EntityFrameworkCore.Parallel</name>
     </assembly>
     <members>
-        <member name="T:EntitiyFrameworkCore.Parallel.AutoDisposingAsyncEnumerable`1">
+        <member name="T:EntityFrameworkCore.Parallel.AutoDisposingAsyncEnumerable`1">
             <summary>
             An <see cref="T:System.Collections.Generic.IAsyncEnumerable`1"/> which will dispose the given disposable object once fully enumerated.
             </summary>
             <typeparam name="T">The element type.</typeparam>
         </member>
-        <member name="T:EntitiyFrameworkCore.Parallel.AutoDisposingAsyncEnumerator`1">
+        <member name="T:EntityFrameworkCore.Parallel.AutoDisposingAsyncEnumerator`1">
             <summary>
             This async enumerator will automatically dispose the given async disposable object once fully enumerated.
             </summary>
             <typeparam name="T">The element type.</typeparam>
         </member>
-        <member name="T:EntitiyFrameworkCore.Parallel.AutoDisposingEnumerable`1">
+        <member name="T:EntityFrameworkCore.Parallel.AutoDisposingEnumerable`1">
             <summary>
             An <see cref="T:System.Collections.Generic.IEnumerable`1"/> which will dispose the given disposable object once fully enumerated.
             </summary>
             <typeparam name="T">The element type.</typeparam>
         </member>
-        <member name="T:EntitiyFrameworkCore.Parallel.AutoDisposingEnumerator`1">
+        <member name="T:EntityFrameworkCore.Parallel.AutoDisposingEnumerator`1">
             <summary>
             This enumerator will automatically dispose the given disposable object once fully enumerated.
             </summary>
             <typeparam name="T">The element type.</typeparam>
         </member>
-        <member name="T:EntitiyFrameworkCore.Parallel.DbContextFactoryQueryContext`1">
+        <member name="T:EntityFrameworkCore.Parallel.DbContextFactoryQueryContext`1">
             <summary>
             This class contains the logic which will actually create the <see cref="T:Microsoft.EntityFrameworkCore.DbContext"/> and execute the query on it.
             </summary>
             <typeparam name="TContext"></typeparam>
             <typeparam name="TEntity"></typeparam>
         </member>
-        <member name="T:EntitiyFrameworkCore.Parallel.Internal.EntityType`1">
+        <member name="T:EntityFrameworkCore.Parallel.Internal.EntityType`1">
             <summary>
             This is a minimal implementation of <see cref="T:Microsoft.EntityFrameworkCore.Metadata.IEntityType"/> to support the creation of queries without the need of a DbContext.
             Most of its methods will just throw exceptions.
@@ -43,19 +43,19 @@
             </summary>
             <typeparam name="TEntity">The type of the entities in the DbSet.</typeparam>
         </member>
-        <member name="T:EntitiyFrameworkCore.Parallel.Internal.SharedTypeExtensions">
+        <member name="T:EntityFrameworkCore.Parallel.Internal.SharedTypeExtensions">
             <summary>
             Contains extension methods to find the generic type parameter of a collection type.
             </summary>
         </member>
-        <member name="T:EntitiyFrameworkCore.Parallel.IQueryContext">
+        <member name="T:EntityFrameworkCore.Parallel.IQueryContext">
             <summary>
             Interface for a query context. A query context is the thing that will actually execute any query.
             </summary>
         </member>
-        <member name="T:EntitiyFrameworkCore.Parallel.QueryProvider">
+        <member name="T:EntityFrameworkCore.Parallel.QueryProvider">
             <summary>
-            A basic query provider which will pass the execution logic down the given <see cref="T:EntitiyFrameworkCore.Parallel.IQueryContext"/>.
+            A basic query provider which will pass the execution logic down the given <see cref="T:EntityFrameworkCore.Parallel.IQueryContext"/>.
             </summary>
         </member>
         <member name="T:Microsoft.EntityFrameworkCore.DbContextFactoryExtensions">

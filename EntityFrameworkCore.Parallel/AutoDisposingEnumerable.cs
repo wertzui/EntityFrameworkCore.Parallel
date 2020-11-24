@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EntitiyFrameworkCore.Parallel
+namespace EntityFrameworkCore.Parallel
 {
     /// <summary>
     /// An <see cref="IEnumerable{T}"/> which will dispose the given disposable object once fully enumerated.

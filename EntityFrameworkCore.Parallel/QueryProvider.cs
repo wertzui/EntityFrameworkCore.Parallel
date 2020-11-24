@@ -1,4 +1,4 @@
-﻿using EntitiyFrameworkCore.Parallel.Internal;
+﻿using EntityFrameworkCore.Parallel.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 
-namespace EntitiyFrameworkCore.Parallel
+namespace EntityFrameworkCore.Parallel
 {
     /// <summary>
     /// A basic query provider which will pass the execution logic down the given <see cref="IQueryContext"/>.

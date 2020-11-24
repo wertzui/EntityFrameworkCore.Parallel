@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace EntitiyFrameworkCore.Parallel
+namespace EntityFrameworkCore.Parallel
 {
     /// <summary>
     /// An <see cref="IAsyncEnumerable{T}"/> which will dispose the given disposable object once fully enumerated.

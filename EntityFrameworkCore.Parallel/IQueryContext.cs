@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Threading;
 
-namespace EntitiyFrameworkCore.Parallel
+namespace EntityFrameworkCore.Parallel
 {
     /// <summary>
     /// Interface for a query context. A query context is the thing that will actually execute any query.

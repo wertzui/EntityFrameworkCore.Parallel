@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30517.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntitiyFrameworkCore.Parallel", "EntitiyFrameworkCore.Parallel\EntitiyFrameworkCore.Parallel.csproj", "{6CF22135-ADC4-4212-A054-E73AE70E3087}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFrameworkCore.Parallel", "EntityFrameworkCore.Parallel\EntityFrameworkCore.Parallel.csproj", "{6CF22135-ADC4-4212-A054-E73AE70E3087}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFrameworkCore.Parallel.Tests", "EntityFrameworkCore.Parallel.Tests\EntityFrameworkCore.Parallel.Tests.csproj", "{6565439E-6CF8-4EF3-97E2-C7B5E264E952}"
 EndProject

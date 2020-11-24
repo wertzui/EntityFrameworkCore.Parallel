@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace EntitiyFrameworkCore.Parallel
+namespace EntityFrameworkCore.Parallel
 {
     /// <summary>
     /// A <see cref="ExpressionVisitor"/> that will replace each <see cref="QueryRootExpression"/> with the one given to it.

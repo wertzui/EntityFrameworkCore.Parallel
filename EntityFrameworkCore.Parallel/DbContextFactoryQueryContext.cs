@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EntitiyFrameworkCore.Parallel
+namespace EntityFrameworkCore.Parallel
 {
     /// <summary>
     /// This class contains the logic which will actually create the <see cref="DbContext"/> and execute the query on it.
@@ -131,8 +131,8 @@ namespace EntitiyFrameworkCore.Parallel
     /// <summary>
     /// Base class for <see cref="DbContextFactoryQueryContext{TEntity}"/> which contains some non generic reflection stuff.
     /// </summary>
-    /// <seealso cref="EntitiyFrameworkCore.Parallel.DbContextFactoryQueryContext" />
-    /// <seealso cref="EntitiyFrameworkCore.Parallel.IQueryContext" />
+    /// <seealso cref="EntityFrameworkCore.Parallel.DbContextFactoryQueryContext" />
+    /// <seealso cref="EntityFrameworkCore.Parallel.IQueryContext" />
     public abstract class DbContextFactoryQueryContext
     {
         /// <summary>

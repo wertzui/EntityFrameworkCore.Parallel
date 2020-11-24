@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections.Generic;
 
-namespace EntitiyFrameworkCore.Parallel.Internal
+namespace EntityFrameworkCore.Parallel.Internal
 {
     /// <summary>
     /// This is a minimal implementation of <see cref="IEntityType"/> to support the creation of queries without the need of a DbContext.

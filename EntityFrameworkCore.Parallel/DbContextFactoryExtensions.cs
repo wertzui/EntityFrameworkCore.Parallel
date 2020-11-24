@@ -1,5 +1,5 @@
-﻿using EntitiyFrameworkCore.Parallel;
-using EntitiyFrameworkCore.Parallel.Internal;
+﻿using EntityFrameworkCore.Parallel;
+using EntityFrameworkCore.Parallel.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.Linq;
 
