@@ -1,0 +1,1 @@
+Get-ChildItem ../src/ *.*nupkg -Recurse | ForEach-Object { dotnet nuget push $_.FullName --source https://api.nuget.org/v3/index.json --skip-duplicate }
