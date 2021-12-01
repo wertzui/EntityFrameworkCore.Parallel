@@ -13,18 +13,20 @@ namespace EntityFrameworkCore.Parallel
     /// <summary>
     /// This class contains the logic which will actually create the <see cref="DbContext"/> and execute the query on it.
     /// </summary>
-    /// <typeparam name="TEntity"></typeparam>
-    public class DbContextFactoryQueryContext<TEntity> : DbContextFactoryQueryContext, IQueryContext
+    /// <typeparam name="TContext">The type of the context.</typeparam>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    public class DbContextFactoryQueryContext<TContext, TEntity> : DbContextFactoryQueryContext, IQueryContext
+        where TContext : DbContext
         where TEntity : class
     {
-        private readonly IDbContextFactory<DbContext> factory;
+        private readonly IDbContextFactory<TContext> factory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DbContextFactoryQueryContext{TEntity}"/> class.
         /// </summary>
         /// <param name="factory">The factory.</param>
         /// <exception cref="ArgumentNullException">factory</exception>
-        public DbContextFactoryQueryContext(IDbContextFactory<DbContext> factory)
+        public DbContextFactoryQueryContext(IDbContextFactory<TContext> factory)
         {
             this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
         }
@@ -139,13 +141,13 @@ namespace EntityFrameworkCore.Parallel
         /// <see cref="MethodInfo"/> of <see cref="Enumerable.ToList{TSource}(System.Collections.Generic.IEnumerable{TSource})"/>.
         /// </summary>
         protected static readonly MethodInfo _toListMethodInfo = typeof(Enumerable)
-            .GetMethod(nameof(Enumerable.ToList));
+            ?.GetMethod(nameof(Enumerable.ToList)) ?? throw new MissingMethodException(nameof(Enumerable), nameof(Enumerable.ToList));
 
         /// <summary>
         /// <see cref="MethodInfo"/> of <see cref="AsyncEnumerable.ToListAsync{TSource}(System.Collections.Generic.IAsyncEnumerable{TSource}, CancellationToken)"/>.
         /// </summary>
         protected static readonly MethodInfo _toListAsyncMethodInfo = typeof(AsyncEnumerable)
-            .GetMethod(nameof(AsyncEnumerable.ToListAsync));
+            ?.GetMethod(nameof(AsyncEnumerable.ToListAsync)) ?? throw new MissingMethodException(nameof(AsyncEnumerable), nameof(AsyncEnumerable.ToListAsync));
 
         /// <summary>
         /// <see cref="MethodInfo"/> of <see cref="AsyncEnumerable.ToAsyncEnumerable{TSource}(Task{TSource})"/>.

@@ -10,7 +10,7 @@ namespace EntityFrameworkCore.Parallel.Tests
     [TestClass]
     public class PerformanceTests
     {
-        private static IDbContextFactory<OrderContext> _factory;
+        private static IDbContextFactory<OrderContext> _factory = default!;
         private static TimeSpan _timeSpanSerial;
         private static TimeSpan _timeSpanInclude;
         private static TimeSpan _timeSpanParallel;
@@ -111,13 +111,12 @@ namespace EntityFrameworkCore.Parallel.Tests
 
         private static async Task GetAllWithFactoryParallel()
         {
-            var ordersTask = _factory.Set<Order>().ToListAsync();
-            var detailsTask = _factory.Set<Detail>().ToListAsync();
+            var ordersTask = _factory.Set<OrderContext, Order>().ToListAsync();
+            var detailsTask = _factory.Set<OrderContext, Detail>().ToListAsync();
 
             await Task.WhenAll(ordersTask, detailsTask);
-
-            var orders = ordersTask.Result;
-            var details = detailsTask.Result;
+            _ = ordersTask.Result;
+            _ = detailsTask.Result;
         }
     }
 }

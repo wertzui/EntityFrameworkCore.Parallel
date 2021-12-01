@@ -1,1 +1,1 @@
-Get-ChildItem ../src/ *.*nupkg -Recurse | ForEach-Object { dotnet nuget push $_.FullName --source https://api.nuget.org/v3/index.json --skip-duplicate }
+Get-ChildItem -Path ../src -Filter *.*nupkg -Recurse | Where-Object { $_.FullName.Contains("bin\Release") } | ForEach-Object { dotnet nuget push $_.FullName --source https://api.nuget.org/v3/index.json --skip-duplicate }

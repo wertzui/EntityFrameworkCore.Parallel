@@ -51,7 +51,7 @@ namespace EntityFrameworkCore.Parallel
             if (!visitor.queryWasReplaced)
                 throw new ArgumentException($"The supplied query does not originate from a {nameof(QueryRootExpression)} and therefor does not come from Entity Framework.", nameof(query));
 
-            return replaced;
+            return replaced ?? throw new ArgumentException($"The supplied query resulted in a replaces expression which was null. This should not happen.", nameof(query));
         }
 
         private QueryRootExpressionReplaceVisitor(QueryRootExpression setQuery)
@@ -60,7 +60,7 @@ namespace EntityFrameworkCore.Parallel
         }
 
         /// <inheritdoc/>
-        public override Expression Visit(Expression node)
+        public override Expression? Visit(Expression? node)
         {
             if (node is QueryRootExpression)
             {
