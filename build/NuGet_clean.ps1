@@ -1,0 +1,1 @@
+Get-ChildItem -Path ../src -Filter *.*nupkg -Recurse | Where-Object { $_.FullName.Contains("bin\Release") } | ForEach-Object { Remove-Item $_ }
