@@ -75,38 +75,32 @@ namespace EntityFrameworkCore.Parallel.Tests
 
         private static async Task GetAllWithContextInclude()
         {
-            using (var context = _factory.CreateDbContext())
-            {
-                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-                var orders = await EntityFrameworkQueryableExtensions.ToListAsync(context.Set<Order>().Include(o => o.Details));
-            }
+            using var context = _factory.CreateDbContext();
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            var orders = await EntityFrameworkQueryableExtensions.ToListAsync(context.Set<Order>().Include(o => o.Details));
         }
 
         private static async Task GetAllWithContextSerial()
         {
-            using (var context = _factory.CreateDbContext())
-            {
-                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-                var orders = await EntityFrameworkQueryableExtensions.ToListAsync(context.Set<Order>());
-                var details = await EntityFrameworkQueryableExtensions.ToListAsync(context.Set<Detail>());
-            }
+            using var context = _factory.CreateDbContext();
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            var orders = await EntityFrameworkQueryableExtensions.ToListAsync(context.Set<Order>());
+            var details = await EntityFrameworkQueryableExtensions.ToListAsync(context.Set<Detail>());
         }
 
         private static async Task GetAllWithContextParallel()
         {
-            using (var context1 = _factory.CreateDbContext())
-            using (var context2 = _factory.CreateDbContext())
-            {
-                context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-                context2.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-                var ordersTask = EntityFrameworkQueryableExtensions.ToListAsync(context1.Set<Order>());
-                var detailsTask = EntityFrameworkQueryableExtensions.ToListAsync(context2.Set<Detail>());
+            using var context1 = _factory.CreateDbContext();
+            using var context2 = _factory.CreateDbContext();
+            context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            context2.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            var ordersTask = EntityFrameworkQueryableExtensions.ToListAsync(context1.Set<Order>());
+            var detailsTask = EntityFrameworkQueryableExtensions.ToListAsync(context2.Set<Detail>());
 
-                await Task.WhenAll(ordersTask, detailsTask);
+            await Task.WhenAll(ordersTask, detailsTask);
 
-                var orders = ordersTask.Result;
-                var details = detailsTask.Result;
-            }
+            var orders = ordersTask.Result;
+            var details = detailsTask.Result;
         }
 
         private static async Task GetAllWithFactoryParallel()

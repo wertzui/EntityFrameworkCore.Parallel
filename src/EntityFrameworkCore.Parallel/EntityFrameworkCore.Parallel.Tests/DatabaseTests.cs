@@ -98,6 +98,26 @@ namespace EntityFrameworkCore.Parallel.Tests
         }
 
         [TestMethod]
+        public async Task Select_to_anonymous_type_and_ToListAsync_should_return_the_Orders_from_the_database()
+        {
+            // Act
+            var detailsFromDb = await _factory.Set<OrderContext, Detail>().Select(d => new { d.Id, d.Quantity }).ToListAsync();
+
+            // Assert
+            Assert.AreEqual(100, detailsFromDb.Count);
+        }
+
+        [TestMethod]
+        public void Select_to_anonymous_type_and_ToList_should_return_the_Orders_from_the_database()
+        {
+            // Act
+            var detailsFromDb = _factory.Set<OrderContext, Detail>().Select(d => new { d.Id, d.Quantity }).ToList();
+
+            // Assert
+            Assert.AreEqual(100, detailsFromDb.Count);
+        }
+
+        [TestMethod]
         public void ToList_with_Where_should_return_the_Orders_from_the_database()
         {
             // Act

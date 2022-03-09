@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -11,7 +12,8 @@ using System.Threading.Tasks;
 namespace EntityFrameworkCore.Parallel
 {
     /// <summary>
-    /// This class contains the logic which will actually create the <see cref="DbContext"/> and execute the query on it.
+    /// This class contains the logic which will actually create the <see cref="DbContext"/> and
+    /// execute the query on it.
     /// </summary>
     /// <typeparam name="TContext">The type of the context.</typeparam>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -57,30 +59,16 @@ namespace EntityFrameworkCore.Parallel
             }
         }
 
-        private static Expression ReplaceProvider(Expression query, DbSet<TEntity> set, IQueryProvider provider)
-            => QueryRootExpressionReplaceVisitor.ReplaceProvider(query, set, provider);
-
-        private static TResult DisposeAfterEnumeration<TResult>(TResult result, DbContext dbContext)
-        {
-            if (result is IEnumerable)
-            {
-                var autoDisposing = EnumerableExtensions.DisposeAfterEnumeration((dynamic)result, dbContext);
-                return (TResult)autoDisposing;
-            }
-
-            dbContext.Dispose();
-            return result;
-        }
-
         /// <inheritdoc/>
         public TResult ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken = default)
         {
             if (query is null)
                 throw new ArgumentNullException(nameof(query));
 
-            // We cannot use a using block here, because the result will be enumerated after this method has already returned.
-            // Instead we pass the DbContext down to the enumerator which will then dispose the context once itself gets disposed.
-            // This will happen when the result is enumerated.
+            // We cannot use a using block here, because the result will be enumerated after this
+            // method has already returned. Instead we pass the DbContext down to the enumerator
+            // which will then dispose the context once itself gets disposed. This will happen when
+            // the result is enumerated.
             var context = factory.CreateDbContext();
             try
             {
@@ -106,12 +94,29 @@ namespace EntityFrameworkCore.Parallel
             }
         }
 
+        private static Task<T> AutoDisposeTask<T>(Task<T> task, IAsyncDisposable asyncDisposable, CancellationToken cancellationToken = default)
+            => task
+                .ContinueWith(async t => { await asyncDisposable.DisposeAsync(); return t.Result; }, cancellationToken)
+                .Unwrap();
+
+        private static TResult DisposeAfterEnumeration<TResult>(TResult result, DbContext dbContext)
+        {
+            if (result is IEnumerable enumerableResult)
+            {
+                var autoDisposing = MakeAutoDisposing<TResult>(enumerableResult, dbContext);
+                return autoDisposing;
+            }
+
+            dbContext.Dispose();
+            return result;
+        }
+
         private static TResult DisposeAfterEnumerationAsync<TResult>(TResult result, DbContext dbContext, CancellationToken cancellationToken = default)
         {
-            if (result is IEnumerable)
+            if (result is IEnumerable enumerableResult)
             {
-                var autoDisposing = AsyncEnumerableExtensions.DisposeAfterEnumeration((dynamic)result, dbContext);
-                return (TResult)autoDisposing;
+                var autoDisposing = MakeAsyncAutoDisposing<TResult>(enumerableResult, dbContext);
+                return autoDisposing;
             }
 
             if (result is Task)
@@ -124,30 +129,31 @@ namespace EntityFrameworkCore.Parallel
             return result;
         }
 
-        private static Task<T> AutoDisposeTask<T>(Task<T> task, IAsyncDisposable asyncDisposable, CancellationToken cancellationToken = default)
-            => task
-                .ContinueWith(async t => { await asyncDisposable.DisposeAsync(); return t.Result; }, cancellationToken)
-                .Unwrap();
+        private static Expression ReplaceProvider(Expression query, DbSet<TEntity> set, IQueryProvider provider)
+                                            => QueryRootExpressionReplaceVisitor.ReplaceProvider(query, set, provider);
     }
 
     /// <summary>
-    /// Base class for <see cref="DbContextFactoryQueryContext{TEntity}"/> which contains some non generic reflection stuff.
+    /// Base class for <see cref="DbContextFactoryQueryContext{TEntity}"/> which contains some non
+    /// generic reflection stuff.
     /// </summary>
-    /// <seealso cref="EntityFrameworkCore.Parallel.DbContextFactoryQueryContext" />
-    /// <seealso cref="EntityFrameworkCore.Parallel.IQueryContext" />
+    /// <seealso cref="EntityFrameworkCore.Parallel.DbContextFactoryQueryContext"/>
+    /// <seealso cref="EntityFrameworkCore.Parallel.IQueryContext"/>
     public abstract class DbContextFactoryQueryContext
     {
         /// <summary>
-        /// <see cref="MethodInfo"/> of <see cref="Enumerable.ToList{TSource}(System.Collections.Generic.IEnumerable{TSource})"/>.
+        /// <see cref="MethodInfo"/> of <see cref="DisposeEnumerableAfterEnumerationAsync{TResultElement}(IAsyncEnumerable{TResultElement}, DbContext)"/>.
         /// </summary>
-        protected static readonly MethodInfo _toListMethodInfo = typeof(Enumerable)
-            ?.GetMethod(nameof(Enumerable.ToList)) ?? throw new MissingMethodException(nameof(Enumerable), nameof(Enumerable.ToList));
+        private static readonly MethodInfo _disposeEnumerableAfterEnumerationAsyncMethodInfo = typeof(DbContextFactoryQueryContext)
+            .GetMethod(nameof(DisposeEnumerableAfterEnumerationAsync), BindingFlags.Static | BindingFlags.NonPublic)
+            ?? throw new MissingMethodException(nameof(DbContextFactoryQueryContext), nameof(DisposeEnumerableAfterEnumerationAsync));
 
         /// <summary>
-        /// <see cref="MethodInfo"/> of <see cref="AsyncEnumerable.ToListAsync{TSource}(System.Collections.Generic.IAsyncEnumerable{TSource}, CancellationToken)"/>.
+        /// <see cref="MethodInfo"/> of <see cref="DisposeEnumerableAfterEnumeration{TResultElement}(IEnumerable{TResultElement}, DbContext)"/>.
         /// </summary>
-        protected static readonly MethodInfo _toListAsyncMethodInfo = typeof(AsyncEnumerable)
-            ?.GetMethod(nameof(AsyncEnumerable.ToListAsync)) ?? throw new MissingMethodException(nameof(AsyncEnumerable), nameof(AsyncEnumerable.ToListAsync));
+        private static readonly MethodInfo _disposeEnumerableAfterEnumerationMethodInfo = typeof(DbContextFactoryQueryContext)
+            .GetMethod(nameof(DisposeEnumerableAfterEnumeration), BindingFlags.Static | BindingFlags.NonPublic)
+            ?? throw new MissingMethodException(nameof(DbContextFactoryQueryContext), nameof(DisposeEnumerableAfterEnumeration));
 
         /// <summary>
         /// <see cref="MethodInfo"/> of <see cref="AsyncEnumerable.ToAsyncEnumerable{TSource}(Task{TSource})"/>.
@@ -169,5 +175,61 @@ namespace EntityFrameworkCore.Parallel
 
                 return true;
             });
+
+        /// <summary>
+        /// <see cref="MethodInfo"/> of <see cref="AsyncEnumerable.ToListAsync{TSource}(IAsyncEnumerable{TSource}, CancellationToken)"/>.
+        /// </summary>
+        protected static readonly MethodInfo _toListAsyncMethodInfo = typeof(AsyncEnumerable)
+            ?.GetMethod(nameof(AsyncEnumerable.ToListAsync)) ?? throw new MissingMethodException(nameof(AsyncEnumerable), nameof(AsyncEnumerable.ToListAsync));
+
+        /// <summary>
+        /// <see cref="MethodInfo"/> of <see cref="Enumerable.ToList{TSource}(IEnumerable{TSource})"/>.
+        /// </summary>
+        protected static readonly MethodInfo _toListMethodInfo = typeof(Enumerable)
+            ?.GetMethod(nameof(Enumerable.ToList)) ?? throw new MissingMethodException(nameof(Enumerable), nameof(Enumerable.ToList));
+
+        /// <summary>
+        /// Wraps the <paramref name="result"/> in an <see cref="AutoDisposingEnumerable{T}"/> which disposes the <paramref name="dbContext"/> after enumeration.
+        /// </summary>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="result">The result.</param>
+        /// <param name="dbContext">The DB context.</param>
+        protected static TResult MakeAutoDisposing<TResult>(IEnumerable result, DbContext dbContext)
+        {
+            var resultType = typeof(TResult);
+            var elementType = resultType.IsGenericType ? resultType.GetGenericArguments()[0] : resultType.GetElementType() ?? typeof(object);
+            var genericMethod = _disposeEnumerableAfterEnumerationMethodInfo.MakeGenericMethod(elementType);
+            var autoDisposing = genericMethod.Invoke(null, new object[] { result, dbContext })!;
+
+            return (TResult)autoDisposing;
+        }
+
+        /// <summary>
+        /// Wraps the <paramref name="result"/> in an <see cref="AutoDisposingAsyncEnumerable{T}"/> which disposes the <paramref name="dbContext"/> after enumeration.
+        /// </summary>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="result">The result.</param>
+        /// <param name="dbContext">The DB context.</param>
+        protected static TResult MakeAsyncAutoDisposing<TResult>(IEnumerable result, DbContext dbContext)
+        {
+            var resultType = typeof(TResult);
+            var elementType = resultType.IsGenericType ? resultType.GetGenericArguments()[0] : resultType.GetElementType() ?? typeof(object);
+            var genericMethod = _disposeEnumerableAfterEnumerationAsyncMethodInfo.MakeGenericMethod(elementType);
+            var autoDisposing = genericMethod.Invoke(null, new object[] { result, dbContext })!;
+
+            return (TResult)autoDisposing;
+        }
+
+        private static IEnumerable<TResultElement> DisposeEnumerableAfterEnumeration<TResultElement>(IEnumerable<TResultElement> result, DbContext dbContext)
+        {
+            var autoDisposing = EnumerableExtensions.DisposeAfterEnumeration(result, dbContext);
+            return autoDisposing;
+        }
+
+        private static IAsyncEnumerable<TResultElement> DisposeEnumerableAfterEnumerationAsync<TResultElement>(IAsyncEnumerable<TResultElement> result, DbContext dbContext)
+        {
+            var autoDisposing = AsyncEnumerableExtensions.DisposeAfterEnumeration(result, dbContext);
+            return autoDisposing;
+        }
     }
 }
