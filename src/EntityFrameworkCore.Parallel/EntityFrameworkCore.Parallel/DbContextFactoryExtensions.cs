@@ -55,8 +55,18 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The factory wrapped as an IDbContextFactory&lt;DbContext&gt;.</returns>
         public static IDbContextFactory<DbContext> Parallel<TContext>(this IDbContextFactory<TContext> contextFactory)
             where TContext : DbContext
-        {
-            return new DbContextFactoryWrapper<TContext>(contextFactory);
-        }
+            => new DbContextFactoryWrapper<TContext>(contextFactory);
+
+        /// <summary>
+        /// Down-casts the generic parameter <typeparamref name="TContextIn"/> of <see cref="IDbContextFactory{TContextIn}"/> to <typeparamref name="TContextOut"/>.
+        /// </summary>
+        /// <typeparam name="TContextIn">The type of the context to wrap.</typeparam>
+        /// <typeparam name="TContextOut">The type of the context to return.</typeparam>
+        /// <param name="contextFactory">The factory which can create the <see cref="DbContext"/>.</param>
+        /// <returns>The factory wrapped as an <see cref="IDbContextFactory{TContextOut}"/></returns>
+        public static IDbContextFactory<TContextOut> Cast<TContextIn, TContextOut>(this IDbContextFactory<TContextIn> contextFactory)
+            where TContextIn : TContextOut
+            where TContextOut : DbContext
+            => new DbContextFactoryWrapper<TContextIn, TContextOut>(contextFactory);
     }
 }

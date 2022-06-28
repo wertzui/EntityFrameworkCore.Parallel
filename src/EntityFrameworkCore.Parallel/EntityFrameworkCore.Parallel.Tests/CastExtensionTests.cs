@@ -27,5 +27,16 @@ namespace EntityFrameworkCore.Parallel.Tests
             // Assert
             Assert.AreEqual(orderWithSetOnly.Id, orderWithParallelAndSet.Id);
         }
+
+        [TestMethod]
+        public void WithCast_and_Set_of_TEntity_should_return_the_same_value_as_Set_of_TContext_TEntity()
+        {
+            // Act
+            var orderWithCastAndSet = _factory.Cast<OrderContext, DbContext>().Set<Order>().First();
+            var orderWithSetOnly = _factory.Set<OrderContext, Order>().First();
+
+            // Assert
+            Assert.AreEqual(orderWithSetOnly.Id, orderWithCastAndSet.Id);
+        }
     }
 }
