@@ -42,8 +42,8 @@ namespace EntityFrameworkCore.Parallel
                 throw new ArgumentNullException(nameof(provider));
 
             var setQuery = provider is IAsyncQueryProvider asyncProvider ?
-                new QueryRootExpression(asyncProvider, set.EntityType) :
-                new QueryRootExpression(set.EntityType);
+                new EntityQueryRootExpression(asyncProvider, set.EntityType) :
+                new EntityQueryRootExpression(set.EntityType);
 
             var visitor = new QueryRootExpressionReplaceVisitor(setQuery);
             var replaced = visitor.Visit(query);

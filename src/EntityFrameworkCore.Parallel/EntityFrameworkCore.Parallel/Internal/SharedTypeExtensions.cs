@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace EntityFrameworkCore.Parallel.Internal
 {
@@ -22,10 +21,11 @@ namespace EntityFrameworkCore.Parallel.Internal
             return sequenceType;
         }
 
-        public static Type TryGetSequenceType(this Type type)
+        public static Type? TryGetSequenceType(this Type type)
             => type.TryGetElementType(typeof(IEnumerable<>))
                 ?? type.TryGetElementType(typeof(IAsyncEnumerable<>));
-        public static Type TryGetElementType(this Type type, Type interfaceOrBaseType)
+
+        public static Type? TryGetElementType(this Type type, Type interfaceOrBaseType)
         {
             if (type.IsGenericTypeDefinition)
             {
@@ -34,7 +34,7 @@ namespace EntityFrameworkCore.Parallel.Internal
 
             var types = GetGenericTypeImplementations(type, interfaceOrBaseType);
 
-            Type singleImplementation = null;
+            Type? singleImplementation = null;
             foreach (var implementation in types)
             {
                 if (singleImplementation == null)
@@ -78,13 +78,13 @@ namespace EntityFrameworkCore.Parallel.Internal
 
         public static IEnumerable<Type> GetBaseTypes(this Type type)
         {
-            type = type.BaseType;
+            var baseType = type.BaseType;
 
-            while (type != null)
+            while (baseType is not null)
             {
-                yield return type;
+                yield return baseType;
 
-                type = type.BaseType;
+                baseType = baseType.BaseType;
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using EntityFrameworkCore.Parallel.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -40,11 +41,16 @@ namespace EntityFrameworkCore.Parallel
         public virtual IQueryable CreateQuery(Expression expression)
         {
             if (expression is null)
-                throw new System.ArgumentNullException(nameof(expression));
+                throw new ArgumentNullException(nameof(expression));
 
-            return (IQueryable)_genericCreateQueryMethod
+            var queryable = _genericCreateQueryMethod
                 .MakeGenericMethod(expression.Type.GetSequenceType())
-                .Invoke(this, new object[] { expression });
+                .Invoke(this, new object[] { expression }) as IQueryable;
+
+            if (queryable is null)
+                throw new InvalidOperationException("Unable to create an IQueryable from the given expression.");
+
+            return queryable;
         }
 
         /// <inheritdoc/>
@@ -62,9 +68,14 @@ namespace EntityFrameworkCore.Parallel
             if (expression is null)
                 throw new System.ArgumentNullException(nameof(expression));
 
-            return _genericExecuteMethod
-            .MakeGenericMethod(expression.Type)
+            var executeResult = _genericExecuteMethod
+                .MakeGenericMethod(expression.Type)
                 .Invoke(_queryContext, new object[] { expression });
+
+            if (executeResult is null)
+                throw new InvalidOperationException("The execution of the given expression resulted in a null value.");
+
+            return executeResult;
         }
 
         /// <inheritdoc/>

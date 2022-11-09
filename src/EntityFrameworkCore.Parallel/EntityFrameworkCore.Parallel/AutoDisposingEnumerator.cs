@@ -31,7 +31,7 @@ namespace EntityFrameworkCore.Parallel
         public T Current => _enumerator.Current;
 
         /// <inheritdoc/>
-        object System.Collections.IEnumerator.Current => Current;
+        object System.Collections.IEnumerator.Current => Current!;
 
         /// <inheritdoc/>
         public void Dispose()
