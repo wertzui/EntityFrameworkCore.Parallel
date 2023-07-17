@@ -45,20 +45,20 @@ namespace EntityFrameworkCore.Parallel.Tests
         [TestMethod]
         public void Parallel_should_be_faster_than_serial()
         {
-            Assert.IsTrue(_timeSpanParallel < _timeSpanSerial);
+            Assert.IsTrue(_timeSpanParallel < _timeSpanSerial, $"{_timeSpanParallel} was not less than {_timeSpanSerial}");
         }
 
         [TestMethod]
         public void Factory_should_be_faster_than_include()
         {
-            Assert.IsTrue(_timeSpanFactory < _timeSpanInclude);
+            Assert.IsTrue(_timeSpanFactory < _timeSpanInclude, $"{_timeSpanFactory} was not less than {_timeSpanInclude}");
         }
 
         [TestMethod]
         public void Factory_should_be_roughly_equal_to_parallel()
         {
             var delta = _timeSpanFactory.TotalMilliseconds * 0.1; // 10% difference is ok
-            Assert.AreEqual(_timeSpanFactory.TotalMilliseconds, _timeSpanParallel.TotalMilliseconds, delta);
+            Assert.AreEqual(_timeSpanFactory.TotalMilliseconds, _timeSpanParallel.TotalMilliseconds, delta, $"{_timeSpanFactory} was not roughly equal to {_timeSpanParallel}");
         }
 
         private static async Task<TimeSpan> Benchmark(Func<Task> method, int count)

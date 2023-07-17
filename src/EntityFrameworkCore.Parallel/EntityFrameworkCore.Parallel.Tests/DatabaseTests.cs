@@ -148,10 +148,91 @@ namespace EntityFrameworkCore.Parallel.Tests
         }
 
         [TestMethod]
+        public void FirstOrDefault_should_return_the_first_Order_from_the_database()
+        {
+            // Act
+            var orderFromDb = _factory.Set<OrderContext, Order>().FirstOrDefault();
+
+            // Assert
+            Assert.IsNotNull(orderFromDb);
+        }
+
+        [TestMethod]
         public async Task FirstAsync_should_return_the_first_Order_from_the_database()
         {
             // Act
             var orderFromDb = await _factory.Set<OrderContext, Order>().FirstAsync();
+
+            // Assert
+            Assert.IsNotNull(orderFromDb);
+        }
+
+        [TestMethod]
+        public void Select_to_anonymous_type_and_FirstOrDefault_should_return_the_first_Order_from_the_database()
+        {
+            // Act
+            var orderFromDb = _factory.Set<OrderContext, Order>().Select(o => new { o.Id, o.OrderNumber }).FirstOrDefault();
+
+            // Assert
+            Assert.IsNotNull(orderFromDb);
+        }
+
+        [TestMethod]
+        public async Task FirstOrDefaultAsync_should_return_the_first_Order_from_the_database()
+        {
+            // Act
+            var orderFromDb = await _factory.Set<OrderContext, Order>().FirstOrDefaultAsync();
+
+            // Assert
+            Assert.IsNotNull(orderFromDb);
+        }
+
+        [TestMethod]
+        public async Task Select_to_anonymous_type_and_FirstOrDefaultAsync_should_return_the_first_Order_from_the_database()
+        {
+            // Act
+            var orderFromDb = await _factory.Set<OrderContext, Order>().Select(o => new { o.Id, o.OrderNumber }).FirstOrDefaultAsync();
+
+            // Assert
+            Assert.IsNotNull(orderFromDb);
+        }
+
+
+        [TestMethod]
+        public async Task SingleAsync_should_return_the_Single_Order_from_the_database()
+        {
+            // Act
+            var orderFromDb = await _factory.Set<OrderContext, Order>().Where(o => o.Id == 1).SingleAsync();
+
+            // Assert
+            Assert.IsNotNull(orderFromDb);
+        }
+
+        [TestMethod]
+        public void Select_to_anonymous_type_and_SingleOrDefault_should_return_the_Single_Order_from_the_database()
+        {
+            // Act
+            var orderFromDb = _factory.Set<OrderContext, Order>().Where(o => o.Id == 1).Select(o => new { o.Id, o.OrderNumber }).SingleOrDefault();
+
+            // Assert
+            Assert.IsNotNull(orderFromDb);
+        }
+
+        [TestMethod]
+        public async Task SingleOrDefaultAsync_should_return_the_Single_Order_from_the_database()
+        {
+            // Act
+            var orderFromDb = await _factory.Set<OrderContext, Order>().Where(o => o.Id == 1).SingleOrDefaultAsync();
+
+            // Assert
+            Assert.IsNotNull(orderFromDb);
+        }
+
+        [TestMethod]
+        public async Task Select_to_anonymous_type_and_SingleOrDefaultAsync_should_return_the_Single_Order_from_the_database()
+        {
+            // Act
+            var orderFromDb = await _factory.Set<OrderContext, Order>().Where(o => o.Id == 1).Select(o => new { o.Id, o.OrderNumber }).SingleOrDefaultAsync();
 
             // Assert
             Assert.IsNotNull(orderFromDb);

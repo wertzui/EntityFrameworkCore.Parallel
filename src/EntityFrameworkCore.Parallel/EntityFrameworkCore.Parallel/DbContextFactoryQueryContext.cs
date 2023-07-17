@@ -81,7 +81,7 @@ namespace EntityFrameworkCore.Parallel
                 {
                     var replaced = ReplaceProvider(query, set, provider);
                     var result = asyncProvider.ExecuteAsync<TResult>(replaced, cancellationToken);
-                    var autoDisposing = DisposeAfterEnumerationAsync(result, context, cancellationToken);
+                    var autoDisposing = DisposeAfterEnumerationAsync(result, context);
                     return autoDisposing;
                 }
 
@@ -93,11 +93,6 @@ namespace EntityFrameworkCore.Parallel
                 throw;
             }
         }
-
-        private static Task<T> AutoDisposeTask<T>(Task<T> task, IAsyncDisposable asyncDisposable, CancellationToken cancellationToken = default)
-            => task
-                .ContinueWith(async t => { await asyncDisposable.DisposeAsync(); return t.Result; }, cancellationToken)
-                .Unwrap();
 
         private static TResult DisposeAfterEnumeration<TResult>(TResult result, DbContext dbContext)
         {
@@ -111,7 +106,7 @@ namespace EntityFrameworkCore.Parallel
             return result;
         }
 
-        private static TResult DisposeAfterEnumerationAsync<TResult>(TResult result, DbContext dbContext, CancellationToken cancellationToken = default)
+        private static TResult DisposeAfterEnumerationAsync<TResult>(TResult result, DbContext dbContext)
         {
             if (result is IEnumerable enumerableResult)
             {
@@ -119,10 +114,10 @@ namespace EntityFrameworkCore.Parallel
                 return autoDisposing;
             }
 
-            if (result is Task)
+            if (result is Task taskResult)
             {
-                var autoDisposing = AutoDisposeTask((dynamic)result, dbContext, cancellationToken);
-                return (TResult)autoDisposing;
+                var autoDisposing = MakeAsyncAutoDisposing<TResult>(taskResult, dbContext);
+                return autoDisposing;
             }
 
             dbContext.Dispose();
@@ -154,6 +149,13 @@ namespace EntityFrameworkCore.Parallel
         private static readonly MethodInfo _disposeEnumerableAfterEnumerationMethodInfo = typeof(DbContextFactoryQueryContext)
             .GetMethod(nameof(DisposeEnumerableAfterEnumeration), BindingFlags.Static | BindingFlags.NonPublic)
             ?? throw new MissingMethodException(nameof(DbContextFactoryQueryContext), nameof(DisposeEnumerableAfterEnumeration));
+
+        /// <summary>
+        /// <see cref="MethodInfo"/> of <see cref="DisposeAfterAwait{TResult}(Task{TResult}, DbContext)"/>.
+        /// </summary>
+        private static readonly MethodInfo _disposeAfterAwaitMethodInfo = typeof(DbContextFactoryQueryContext)
+            .GetMethod(nameof(DisposeAfterAwait), BindingFlags.Static | BindingFlags.NonPublic)
+            ?? throw new MissingMethodException(nameof(DbContextFactoryQueryContext), nameof(DisposeAfterAwait));
 
         /// <summary>
         /// <see cref="MethodInfo"/> of <see cref="AsyncEnumerable.ToAsyncEnumerable{TSource}(Task{TSource})"/>.
@@ -220,6 +222,23 @@ namespace EntityFrameworkCore.Parallel
             return (TResult)autoDisposing;
         }
 
+
+        /// <summary>
+        /// Wraps the <paramref name="result"/> in a <see cref="Task"/> which disposes the <paramref name="dbContext"/> after awaiting the original <see cref="Task"/> and returns the original <see cref="Task"/> as <typeparamref name="TResult"/>.
+        /// </summary>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="result">The result.</param>
+        /// <param name="dbContext">The DB context.</param>
+        protected static TResult MakeAsyncAutoDisposing<TResult>(Task result, DbContext dbContext)
+        {
+            var resultType = typeof(TResult);
+            var elementType = resultType.IsGenericType ? resultType.GetGenericArguments()[0] : typeof(object);
+            var genericMethod = _disposeAfterAwaitMethodInfo.MakeGenericMethod(elementType);
+            var autoDisposing = genericMethod.Invoke(null, new object[] { result, dbContext })!;
+
+            return (TResult)autoDisposing;
+        }
+
         private static IEnumerable<TResultElement> DisposeEnumerableAfterEnumeration<TResultElement>(IEnumerable<TResultElement> result, DbContext dbContext)
         {
             var autoDisposing = EnumerableExtensions.DisposeAfterEnumeration(result, dbContext);
@@ -230,6 +249,13 @@ namespace EntityFrameworkCore.Parallel
         {
             var autoDisposing = AsyncEnumerableExtensions.DisposeAfterEnumeration(result, dbContext);
             return autoDisposing;
+        }
+
+        private async static Task<TResultElement> DisposeAfterAwait<TResultElement>(Task<TResultElement> task, DbContext dbContext)
+        {
+            var result = await task;
+            await dbContext.DisposeAsync();
+            return result;
         }
     }
 }
