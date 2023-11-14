@@ -7,93 +7,87 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 
-namespace EntityFrameworkCore.Parallel
+namespace EntityFrameworkCore.Parallel;
+
+/// <summary>
+/// A basic query provider which will pass the execution logic down the given <see cref="IQueryContext"/>.
+/// </summary>
+public class QueryProvider : IAsyncQueryProvider
 {
+    private readonly IQueryContext _queryContext;
+
+    private static readonly MethodInfo _genericCreateQueryMethod
+        = typeof(QueryProvider)
+            .GetRuntimeMethods()
+            .Single(m => m.Name == nameof(CreateQuery) && m.IsGenericMethod);
+
+    private readonly MethodInfo _genericExecuteMethod;
+
     /// <summary>
-    /// A basic query provider which will pass the execution logic down the given <see cref="IQueryContext"/>.
+    /// Initializes a new instance of the <see cref="QueryProvider"/> class.
     /// </summary>
-    public class QueryProvider : IAsyncQueryProvider
+    /// <param name="queryContext">The query context.</param>
+    /// <exception cref="System.ArgumentNullException">queryContext</exception>
+    public QueryProvider(IQueryContext queryContext)
     {
-        private readonly IQueryContext _queryContext;
+        _queryContext = queryContext ?? throw new System.ArgumentNullException(nameof(queryContext));
 
-        private static readonly MethodInfo _genericCreateQueryMethod
-            = typeof(QueryProvider)
-                .GetRuntimeMethods()
-                .Single(m => m.Name == nameof(CreateQuery) && m.IsGenericMethod);
+        _genericExecuteMethod = _queryContext.GetType()
+             .GetRuntimeMethods()
+             .Single(m => m.Name == nameof(IQueryContext.Execute) && m.IsGenericMethod);
+    }
 
-        private readonly MethodInfo _genericExecuteMethod;
+    /// <inheritdoc/>
+    public virtual IQueryable CreateQuery(Expression expression)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="QueryProvider"/> class.
-        /// </summary>
-        /// <param name="queryContext">The query context.</param>
-        /// <exception cref="System.ArgumentNullException">queryContext</exception>
-        public QueryProvider(IQueryContext queryContext)
-        {
-            _queryContext = queryContext ?? throw new System.ArgumentNullException(nameof(queryContext));
+        var queryable = _genericCreateQueryMethod
+            .MakeGenericMethod(expression.Type.GetSequenceType())
+            .Invoke(this, new object[] { expression }) as IQueryable;
 
-            _genericExecuteMethod = _queryContext.GetType()
-                 .GetRuntimeMethods()
-                 .Single(m => m.Name == nameof(IQueryContext.Execute) && m.IsGenericMethod);
-        }
+        if (queryable is null)
+            throw new InvalidOperationException("Unable to create an IQueryable from the given expression.");
 
-        /// <inheritdoc/>
-        public virtual IQueryable CreateQuery(Expression expression)
-        {
-            if (expression is null)
-                throw new ArgumentNullException(nameof(expression));
+        return queryable;
+    }
 
-            var queryable = _genericCreateQueryMethod
-                .MakeGenericMethod(expression.Type.GetSequenceType())
-                .Invoke(this, new object[] { expression }) as IQueryable;
+    /// <inheritdoc/>
+    public virtual IQueryable<T> CreateQuery<T>(Expression expression)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
 
-            if (queryable is null)
-                throw new InvalidOperationException("Unable to create an IQueryable from the given expression.");
+        return new EntityQueryable<T>(this, expression);
+    }
 
-            return queryable;
-        }
+    /// <inheritdoc/>
+    public virtual object Execute(Expression expression)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
 
-        /// <inheritdoc/>
-        public virtual IQueryable<T> CreateQuery<T>(Expression expression)
-        {
-            if (expression is null)
-                throw new System.ArgumentNullException(nameof(expression));
+        var executeResult = _genericExecuteMethod
+            .MakeGenericMethod(expression.Type)
+            .Invoke(_queryContext, new object[] { expression });
 
-            return new EntityQueryable<T>(this, expression);
-        }
+        if (executeResult is null)
+            throw new InvalidOperationException("The execution of the given expression resulted in a null value.");
 
-        /// <inheritdoc/>
-        public virtual object Execute(Expression expression)
-        {
-            if (expression is null)
-                throw new System.ArgumentNullException(nameof(expression));
+        return executeResult;
+    }
 
-            var executeResult = _genericExecuteMethod
-                .MakeGenericMethod(expression.Type)
-                .Invoke(_queryContext, new object[] { expression });
+    /// <inheritdoc/>
+    TResult IQueryProvider.Execute<TResult>(Expression expression)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
 
-            if (executeResult is null)
-                throw new InvalidOperationException("The execution of the given expression resulted in a null value.");
+        return _queryContext.Execute<TResult>(expression);
+    }
 
-            return executeResult;
-        }
+    /// <inheritdoc/>
+    public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
 
-        /// <inheritdoc/>
-        TResult IQueryProvider.Execute<TResult>(Expression expression)
-        {
-            if (expression is null)
-                throw new System.ArgumentNullException(nameof(expression));
-
-            return _queryContext.Execute<TResult>(expression);
-        }
-
-        /// <inheritdoc/>
-        public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default)
-        {
-            if (expression is null)
-                throw new System.ArgumentNullException(nameof(expression));
-
-            return _queryContext.ExecuteAsync<TResult>(expression, cancellationToken);
-        }
+        return _queryContext.ExecuteAsync<TResult>(expression, cancellationToken);
     }
 }

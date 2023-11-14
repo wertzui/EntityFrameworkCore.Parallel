@@ -1,8 +1,7 @@
-﻿namespace EntityFrameworkCore.Parallel.DemoModel
+﻿namespace EntityFrameworkCore.Parallel.DemoModel;
+
+public abstract class EntityBase
 {
-    public abstract class EntityBase
-    {
-        public long Id { get; set; }
-        public byte[]? Timestamp { get; set; }
-    }
+    public long Id { get; set; }
+    public byte[]? Timestamp { get; set; }
 }

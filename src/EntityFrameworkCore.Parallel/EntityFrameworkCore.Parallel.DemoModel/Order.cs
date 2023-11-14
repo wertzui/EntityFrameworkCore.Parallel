@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace EntityFrameworkCore.Parallel.DemoModel
-{
-    public class Order : EntityBase
-    {
-        public string? OrderNumber { get; set; }
+namespace EntityFrameworkCore.Parallel.DemoModel;
 
-        public virtual ICollection<Detail> Details { get; set; } = new HashSet<Detail>();
-    }
+public class Order : EntityBase
+{
+    public string? OrderNumber { get; set; }
+
+    public virtual ICollection<Detail> Details { get; set; } = new HashSet<Detail>();
 }
