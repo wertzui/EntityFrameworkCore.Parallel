@@ -9,7 +9,7 @@ namespace EntityFrameworkCore.Parallel;
 /// <summary>
 /// A <see cref="ExpressionVisitor"/> that will replace each <see cref="QueryRootExpression"/> with the one given to it.
 /// </summary>
-/// <seealso cref="System.Linq.Expressions.ExpressionVisitor" />
+/// <seealso cref="ExpressionVisitor" />
 public class QueryRootExpressionReplaceVisitor : ExpressionVisitor
 {
     private readonly QueryRootExpression _setQuery;

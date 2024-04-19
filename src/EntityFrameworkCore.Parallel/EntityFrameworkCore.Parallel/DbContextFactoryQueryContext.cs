@@ -24,7 +24,7 @@ public class DbContextFactoryQueryContext<TContext, TEntity> : DbContextFactoryQ
     private readonly IDbContextFactory<TContext> factory;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DbContextFactoryQueryContext{TEntity}"/> class.
+    /// Initializes a new instance of the <see cref="DbContextFactoryQueryContext{TContext, TEntity}"/> class.
     /// </summary>
     /// <param name="factory">The factory.</param>
     /// <exception cref="ArgumentNullException">factory</exception>
@@ -127,11 +127,11 @@ public class DbContextFactoryQueryContext<TContext, TEntity> : DbContextFactoryQ
 }
 
 /// <summary>
-/// Base class for <see cref="DbContextFactoryQueryContext{TEntity}"/> which contains some non
+/// Base class for <see cref="DbContextFactoryQueryContext{TContext, TEntity}"/> which contains some non
 /// generic reflection stuff.
 /// </summary>
-/// <seealso cref="EntityFrameworkCore.Parallel.DbContextFactoryQueryContext"/>
-/// <seealso cref="EntityFrameworkCore.Parallel.IQueryContext"/>
+/// <seealso cref="DbContextFactoryQueryContext"/>
+/// <seealso cref="IQueryContext"/>
 public abstract class DbContextFactoryQueryContext
 {
     /// <summary>
@@ -199,7 +199,7 @@ public abstract class DbContextFactoryQueryContext
         var resultType = typeof(TResult);
         var elementType = resultType.IsGenericType ? resultType.GetGenericArguments()[0] : resultType.GetElementType() ?? typeof(object);
         var genericMethod = _disposeEnumerableAfterEnumerationMethodInfo.MakeGenericMethod(elementType);
-        var autoDisposing = genericMethod.Invoke(null, new object[] { result, dbContext })!;
+        var autoDisposing = genericMethod.Invoke(null, [result, dbContext])!;
 
         return (TResult)autoDisposing;
     }
@@ -215,7 +215,7 @@ public abstract class DbContextFactoryQueryContext
         var resultType = typeof(TResult);
         var elementType = resultType.IsGenericType ? resultType.GetGenericArguments()[0] : resultType.GetElementType() ?? typeof(object);
         var genericMethod = _disposeEnumerableAfterEnumerationAsyncMethodInfo.MakeGenericMethod(elementType);
-        var autoDisposing = genericMethod.Invoke(null, new object[] { result, dbContext })!;
+        var autoDisposing = genericMethod.Invoke(null, [result, dbContext])!;
 
         return (TResult)autoDisposing;
     }
@@ -232,7 +232,7 @@ public abstract class DbContextFactoryQueryContext
         var resultType = typeof(TResult);
         var elementType = resultType.IsGenericType ? resultType.GetGenericArguments()[0] : typeof(object);
         var genericMethod = _disposeAfterAwaitMethodInfo.MakeGenericMethod(elementType);
-        var autoDisposing = genericMethod.Invoke(null, new object[] { result, dbContext })!;
+        var autoDisposing = genericMethod.Invoke(null, [result, dbContext])!;
 
         return (TResult)autoDisposing;
     }

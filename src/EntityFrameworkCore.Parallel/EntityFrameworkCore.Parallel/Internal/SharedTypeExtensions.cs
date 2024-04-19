@@ -12,11 +12,7 @@ internal static class SharedTypeExtensions
 {
     public static Type GetSequenceType(this Type type)
     {
-        var sequenceType = TryGetSequenceType(type);
-        if (sequenceType == null)
-        {
-            throw new ArgumentException("The given type is not a collection type", nameof(type));
-        }
+        var sequenceType = TryGetSequenceType(type) ?? throw new ArgumentException("The given type is not a collection type", nameof(type));
 
         return sequenceType;
     }

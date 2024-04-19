@@ -27,10 +27,10 @@ public class QueryProvider : IAsyncQueryProvider
     /// Initializes a new instance of the <see cref="QueryProvider"/> class.
     /// </summary>
     /// <param name="queryContext">The query context.</param>
-    /// <exception cref="System.ArgumentNullException">queryContext</exception>
+    /// <exception cref="ArgumentNullException">queryContext</exception>
     public QueryProvider(IQueryContext queryContext)
     {
-        _queryContext = queryContext ?? throw new System.ArgumentNullException(nameof(queryContext));
+        _queryContext = queryContext ?? throw new ArgumentNullException(nameof(queryContext));
 
         _genericExecuteMethod = _queryContext.GetType()
              .GetRuntimeMethods()
@@ -42,11 +42,9 @@ public class QueryProvider : IAsyncQueryProvider
     {
         ArgumentNullException.ThrowIfNull(expression);
 
-        var queryable = _genericCreateQueryMethod
+        if (_genericCreateQueryMethod
             .MakeGenericMethod(expression.Type.GetSequenceType())
-            .Invoke(this, new object[] { expression }) as IQueryable;
-
-        if (queryable is null)
+            .Invoke(this, [expression]) is not IQueryable queryable)
             throw new InvalidOperationException("Unable to create an IQueryable from the given expression.");
 
         return queryable;
@@ -67,10 +65,7 @@ public class QueryProvider : IAsyncQueryProvider
 
         var executeResult = _genericExecuteMethod
             .MakeGenericMethod(expression.Type)
-            .Invoke(_queryContext, new object[] { expression });
-
-        if (executeResult is null)
-            throw new InvalidOperationException("The execution of the given expression resulted in a null value.");
+            .Invoke(_queryContext, [expression]) ?? throw new InvalidOperationException("The execution of the given expression resulted in a null value.");
 
         return executeResult;
     }
