@@ -123,7 +123,7 @@ public class DbContextFactoryQueryContext<TContext, TEntity> : DbContextFactoryQ
     }
 
     private static Expression ReplaceProvider(Expression query, DbSet<TEntity> set, IQueryProvider provider)
-                                        => QueryRootExpressionReplaceVisitor.ReplaceProvider(query, set, provider);
+        => EntityQueryRootExpressionReplaceVisitor.ReplaceProvider(query, set, provider);
 }
 
 /// <summary>
@@ -156,39 +156,6 @@ public abstract class DbContextFactoryQueryContext
         ?? throw new MissingMethodException(nameof(DbContextFactoryQueryContext), nameof(DisposeAfterAwait));
 
     /// <summary>
-    /// <see cref="MethodInfo"/> of <see cref="AsyncEnumerable.ToAsyncEnumerable{TSource}(Task{TSource})"/>.
-    /// </summary>
-    protected static readonly MethodInfo _toAsyncEnumerableMethodInfo = typeof(AsyncEnumerable)
-        .GetMethods()
-        .Single(m =>
-        {
-            if (m.Name != nameof(AsyncEnumerable.ToAsyncEnumerable))
-                return false;
-
-            var parameter = m.GetParameters().FirstOrDefault();
-            if (parameter == null)
-                return false;
-
-            var parameterType = parameter.ParameterType;
-            if (!typeof(Task).IsAssignableFrom(parameterType))
-                return false;
-
-            return true;
-        });
-
-    /// <summary>
-    /// <see cref="MethodInfo"/> of <see cref="AsyncEnumerable.ToListAsync{TSource}(IAsyncEnumerable{TSource}, CancellationToken)"/>.
-    /// </summary>
-    protected static readonly MethodInfo _toListAsyncMethodInfo = typeof(AsyncEnumerable)
-        ?.GetMethod(nameof(AsyncEnumerable.ToListAsync)) ?? throw new MissingMethodException(nameof(AsyncEnumerable), nameof(AsyncEnumerable.ToListAsync));
-
-    /// <summary>
-    /// <see cref="MethodInfo"/> of <see cref="Enumerable.ToList{TSource}(IEnumerable{TSource})"/>.
-    /// </summary>
-    protected static readonly MethodInfo _toListMethodInfo = typeof(Enumerable)
-        ?.GetMethod(nameof(Enumerable.ToList)) ?? throw new MissingMethodException(nameof(Enumerable), nameof(Enumerable.ToList));
-
-    /// <summary>
     /// Wraps the <paramref name="result"/> in an <see cref="AutoDisposingEnumerable{T}"/> which disposes the <paramref name="dbContext"/> after enumeration.
     /// </summary>
     /// <typeparam name="TResult">The result type.</typeparam>
@@ -219,7 +186,6 @@ public abstract class DbContextFactoryQueryContext
 
         return (TResult)autoDisposing;
     }
-
 
     /// <summary>
     /// Wraps the <paramref name="result"/> in a <see cref="Task"/> which disposes the <paramref name="dbContext"/> after awaiting the original <see cref="Task"/> and returns the original <see cref="Task"/> as <typeparamref name="TResult"/>.
