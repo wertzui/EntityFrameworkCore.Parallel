@@ -8,10 +8,10 @@ As the context is disposed after your query is executed, all results will obviou
 
 # How to use
 
-In your `Startup` class, add a `DbContextfactory`. If you want a pooled one, or not is up to you.
+In your `Program.cs`, add a `DbContextfactory`. If you want a pooled one, or not is up to you.
 
 ```csharp
-services.AddPooledDbContextFactory<OrderContext>(options => options.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=OrderTest"));
+builder.Services.AddPooledDbContextFactory<OrderContext>(options => options.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=OrderTest"));
 ```
 
 In your business class, inject an `IDbContextFactory<TContext>` and use it like this
