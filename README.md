@@ -1,14 +1,18 @@
 # EntityFrameworkCore.Parallel
+[![NuGet Version](https://img.shields.io/nuget/v/EntityFrameworkCore.Parallel.svg?style=flat-square)](https://www.nuget.org/packages/EntityFrameworkCore.Parallel/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/EntityFrameworkCore.Parallel.svg?style=flat-square)](https://www.nuget.org/packages/EntityFrameworkCore.Parallel/)
 
 This extension to Entity Framework Core adds a `Set<TContext, TEntity>()` method to `IDbContextFactory<TContext>`.
+
 For easy use it also adds a `Parallel()` method to `IDbContextFactory<TContext>` and a `Set<TEntity>()` method to `IDbContextFactory<DbContext>`.
+
 This allows you to easily execute multiple queries in parallel without the need to write complex code, or a lot of `using` blocks or statements.
 You can stick to all your known methods from `IQueryable<TEntity>`.
 As the context is disposed after your query is executed, all results will obviously not be tracked and disconnected from any `DbContext`.
 
 # How to use
 
-In your `Program.cs`, add a `DbContextfactory`. If you want a pooled one, or not is up to you.
+In your `Program.cs`, add a `DbContextFactory`. If you want a pooled one, or not is up to you.
 
 ```csharp
 builder.Services.AddPooledDbContextFactory<OrderContext>(options => options.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=OrderTest"));

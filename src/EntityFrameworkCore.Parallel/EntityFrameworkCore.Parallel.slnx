@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="EntityFrameworkCore.Parallel.DemoModel/EntityFrameworkCore.Parallel.DemoModel.csproj" />
+  <Project Path="EntityFrameworkCore.Parallel.Tests/EntityFrameworkCore.Parallel.Tests.csproj" />
+  <Project Path="EntityFrameworkCore.Parallel/EntityFrameworkCore.Parallel.csproj" />
+</Solution>

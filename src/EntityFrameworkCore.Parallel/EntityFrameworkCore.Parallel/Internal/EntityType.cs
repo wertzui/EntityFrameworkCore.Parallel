@@ -49,6 +49,10 @@ public class EntityType<TEntity> : IEntityType
     /// <inheritdoc/>
     public InstantiationBinding? ServiceOnlyConstructorBinding => throw new NotImplementedException();
 
+    ITypeBase? ITypeBase.BaseType => throw new NotImplementedException();
+
+    IReadOnlyTypeBase? IReadOnlyTypeBase.BaseType => throw new NotImplementedException();
+
     /// <inheritdoc/>
     public object? this[string name] => throw new NotImplementedException();
 
@@ -308,12 +312,6 @@ public class EntityType<TEntity> : IEntityType
     public bool HasServiceProperties() => throw new NotImplementedException();
 
     /// <inheritdoc/>
-    public Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source) => throw new NotImplementedException();
-
-    /// <inheritdoc/>
-    public Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source) => throw new NotImplementedException();
-
-    /// <inheritdoc/>
     public IComplexProperty? FindComplexProperty(string name) => throw new NotImplementedException();
 
     /// <inheritdoc/>
@@ -384,4 +382,25 @@ public class EntityType<TEntity> : IEntityType
 
     /// <inheritdoc/>
     IEnumerable<IReadOnlyPropertyBase> IReadOnlyTypeBase.FindMembersInHierarchy(string name) => throw new NotImplementedException();
+
+    /// <inheritdoc/>
+    public IReadOnlyCollection<IQueryFilter> GetDeclaredQueryFilters() => throw new NotImplementedException();
+
+    /// <inheritdoc/>
+    public IQueryFilter? FindDeclaredQueryFilter(string? filterKey) => throw new NotImplementedException();
+
+    IEnumerable<ITypeBase> ITypeBase.GetDirectlyDerivedTypes() => throw new NotImplementedException();
+
+    /// <inheritdoc/>
+    public IEnumerable<IProperty> GetFlattenedValueGeneratingProperties() => throw new NotImplementedException();
+
+    IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDerivedTypes() => throw new NotImplementedException();
+
+    IEnumerable<IReadOnlyTypeBase> IReadOnlyTypeBase.GetDirectlyDerivedTypes() => throw new NotImplementedException();
+
+    /// <inheritdoc/>
+    public Func<MaterializationContext, object> GetOrCreateMaterializer(IStructuralTypeMaterializerSource source) => throw new NotImplementedException();
+
+    /// <inheritdoc/>
+    public Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IStructuralTypeMaterializerSource source) => throw new NotImplementedException();
 }
