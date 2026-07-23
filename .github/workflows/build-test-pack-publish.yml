@@ -1,0 +1,49 @@
+name: Build, Test, Pack, Publish
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      slnx_file:
+        description: "Path to the .slnx file (defaults to src/EntityFrameworkCore.Parallel/EntityFrameworkCore.Parallel.slnx)"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  login:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    outputs:
+      encrypted_api_key: ${{ steps.encrypt.outputs.encrypted }}
+    steps:
+      - name: NuGet login (OIDC → temp API key)
+        id: login
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Encrypt API key (so it survives job/workflow output without masking)
+        id: encrypt
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: wertzui/Actions/.github/actions/encrypt-value@main
+        with:
+          value: ${{ steps.login.outputs.NUGET_API_KEY }}
+          key: ${{ secrets.ENCRYPTION_KEY }}
+
+  build-test-pack-publish:
+    needs: login
+    permissions:
+      contents: write
+    uses: wertzui/Actions/.github/workflows/nuget-build.yml@main
+    with:
+      solution_file: ${{ inputs.slnx_file || 'src/EntityFrameworkCore.Parallel/EntityFrameworkCore.Parallel.slnx' }}
+      encrypted_api_key: ${{ needs.login.outputs.encrypted_api_key }}
+    secrets:
+      encryption_key: ${{ secrets.ENCRYPTION_KEY }}
