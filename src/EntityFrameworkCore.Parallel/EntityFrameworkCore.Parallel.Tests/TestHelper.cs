@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace EntityFrameworkCore.Parallel.Tests;
@@ -11,7 +12,7 @@ public static class TestHelper
     public static async Task<IDbContextFactory<OrderContext>> CreateFreshDatabase(int entitiesInEachTable)
     {
         var services = new ServiceCollection();
-        services.AddPooledDbContextFactory<OrderContext>(options => options.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=OrderTest"));
+        services.AddPooledDbContextFactory<OrderContext>(options => options.UseSqlite("Data Source=OrderTest.db"));
 
         var provider = services.BuildServiceProvider();
 
