@@ -16,6 +16,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Install DotnetVersionReader
         run: dotnet tool install -g DotnetVersionReader
