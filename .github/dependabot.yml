@@ -9,3 +9,7 @@ updates:
     directory: "/src/EntityFrameworkCore.Parallel" # Location of package manifests
     schedule:
       interval: "weekly"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"

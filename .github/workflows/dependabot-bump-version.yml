@@ -1,0 +1,30 @@
+name: Bump Version on Dependabot PR
+
+on:
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  bump-version:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install DotnetVersionReader
+        run: dotnet tool install -g DotnetVersionReader
+
+      - name: Bump VersionPrefix in .csproj
+        run: dotnet version diff --filter GeneratePackageOnBuild=true -o table --fix
+
+      - name: Commit version bump
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "chore: bump Version to match dependency update"
+          file_pattern: "**/*.csproj"
