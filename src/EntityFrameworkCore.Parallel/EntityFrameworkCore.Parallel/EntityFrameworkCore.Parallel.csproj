@@ -6,7 +6,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <VersionPrefix>6.0.7</VersionPrefix>
+    <VersionPrefix>6.0.8</VersionPrefix>
     <Authors>wertzui</Authors>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
