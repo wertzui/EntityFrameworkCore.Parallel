@@ -102,7 +102,10 @@ public class EntityType<TEntity> : IEntityType
     public IIndex? FindIndex(string name) => throw new NotImplementedException();
 
     /// <inheritdoc/>
-    IReadOnlyIndex? IReadOnlyEntityType.FindIndex(IReadOnlyList<IReadOnlyProperty> properties) => throw new NotImplementedException();
+    public IIndex? FindIndex(IReadOnlyList<IReadOnlyPropertyBase> properties) => throw new NotImplementedException();
+
+    /// <inheritdoc/>
+    IReadOnlyIndex? IReadOnlyEntityType.FindIndex(IReadOnlyList<IReadOnlyPropertyBase> properties) => FindIndex(properties);
 
     /// <inheritdoc/>
     IReadOnlyIndex? IReadOnlyEntityType.FindIndex(string name) => throw new NotImplementedException();
